@@ -1,6 +1,8 @@
 # CSCI 5611 - Sid Lin
 This is my repository for CSCI 5611 - Fall 2020.
 
+Website link can be found [here](https://sydneylin12.github.io/CSCI-5611/)
+
 # Project 1 - Boids
 I have implemented a simple 2d boid simulation in processing, per the assignment requirements. 
 Each boid is represented as a twitter icon because of the similarity to birds.
