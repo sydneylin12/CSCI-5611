@@ -89,7 +89,8 @@ kept using position instead of velocity to get a boid's direction. I had previou
 curve for this editor.
 
 ## Videos
-I can't embed a video in here, so [here](www.google.com) is a link to a YT unlisted video instead.
+I can't embed a video in here, so [here](https://www.youtube.com/watch?v=u0CUPmYFpRw&feature=youtu.be&ab_channel=SidLin) is a link to a YT unlisted video instead.
+NOTE: I made a few minor changes after recording, so the final result may vary SLIGHTLY.
   
 
 
