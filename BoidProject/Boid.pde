@@ -24,8 +24,9 @@ class Boid {
 
   // Handle movement of all boids in the list
   public void move(LinkedList<Boid> boids, LinkedList<Vec2> obstacles, PImage img, boolean toggle){    
-    // Draw bird image here
-    image(img, pos.x, pos.y, 10, 10);
+    
+    // attempt to do angle
+    float theta = (float) Math.atan2(pos.y, pos.x);
         
     // Handle the 3 forces before drawing the circles
     flock(boids, obstacles, toggle);  
@@ -39,7 +40,7 @@ class Boid {
 
   // Handle the 3 forces on each boid and add each force to a boid's accel. 
   public void flock(LinkedList<Boid> boids, LinkedList<Vec2> obstacles, boolean toggle){ 
-    acc.add(separate(boids));
+    acc.add(separate(boids).times(2));
     acc.add(avoid(obstacles, toggle));
     acc.add(align(boids));
     acc.add(cohesion(boids));

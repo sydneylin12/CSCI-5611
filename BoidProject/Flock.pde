@@ -13,7 +13,7 @@ class Flock {
    
   // Move each boid indidually
   public void move(PImage img){
-    for (Boid b : boids) {
+    for (Boid b : boids){
       b.move(boids, obstacles, img, toggle);
     }
   }

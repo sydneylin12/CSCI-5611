@@ -11,7 +11,7 @@ void setup() {
   debug = true;
   
   // Change this to improve FPS
-  int num = 1000;
+  int num = 400;
   
   for (int i = 0; i < num; i++){
     // Spawn a boid in the middle
@@ -27,12 +27,20 @@ void setup() {
   f.addObstacle(width/2, height/2);
   
   // Add the bird image 
-  img = loadImage("tweetar.png");
+  img = loadImage("ant.png");
 }
 
 
 void draw() {
   background(255);
+  for(Boid b: f.boids){
+    float theta = (float) Math.atan2(b.pos.y, b.pos.x);
+    pushMatrix();
+    translate(b.pos.x, b.pos.y);
+    rotate(theta + radians(45));
+    image(img, 0, 0, 10, 10);
+    popMatrix();
+  }
   f.move(img);
   f.drawObstacles();
   if(debug) System.out.println("Frame rate is: " + frameRate + " fps");  
