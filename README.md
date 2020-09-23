@@ -38,6 +38,7 @@ Obstacles are drawn as large red circles with a black outline.
 ## Code
 The general approach to this project was averaging out certain vectors in an O(n^2) loop between each boid. There was a distance helper function to
 determine if a boid was close enough to the other. Then, a count is summed up and the resulting vector is averaged by the amount of valid boids. 
+Finally, I make some modifications to the resulting acceleration vector to make sure the boids are moving slow enough.
 <pre><code>
 Vec2 separate (LinkedList<Boid> boids){    
     Vec2 res = new Vec2(0, 0);
@@ -60,21 +61,32 @@ Vec2 separate (LinkedList<Boid> boids){
   
     // Div by 0 handled already 
     res.div(avg);
-    if(res.length() != 0){
-      res.normalize();
-      res.mul(speed);
-      res.subtract(vel);
-      res.clampToLength(0.05); 
-    }
+    res.normalize();
+    res.setToLength(0.05);
+    return res;
     return res;
   }
+</pre></code>
+
+This block of code is used for rotating the image. It was probably the other significant part about the project, other than the boid implementation.
+
+<pre><code>
+float theta = (float) Math.atan2(b.vel.y, b.vel.x);
+pushMatrix();
+translate(b.pos.x, b.pos.y);
+rotate(theta + radians(45));
+image(img, 0, 0, 10, 10);
+popMatrix();
 </pre></code>
   
 ## Tech used
 Vanilla processing + java.utils LinkedList<> ADT. One image from google images was used (the ant). 
 
 ## Difficulties
-TODO
+A lot of the vector tweaking was "guess-and-checking" rather than doing it to a formula. I had to normalize, clamp, and set a ton of variables. 
+There are also tons of arbitrary weights in the code, such as the 1.2 for separation. Getting the rotation to work was also frustrating because I
+kept using position instead of velocity to get a boid's direction. I had previous experience with processing from 4611 so there was little to no learning
+curve for this editor.
 
 ## Videos
 I can't embed a video in here, so [here](www.google.com) is a link to a YT unlisted video instead.
