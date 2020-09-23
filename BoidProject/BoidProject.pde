@@ -34,7 +34,7 @@ void setup() {
 void draw() {
   background(255);
   for(Boid b: f.boids){
-    float theta = (float) Math.atan2(b.pos.y, b.pos.x);
+    float theta = (float) Math.atan2(b.vel.y, b.vel.x);
     pushMatrix();
     translate(b.pos.x, b.pos.y);
     rotate(theta + radians(45));

@@ -40,7 +40,8 @@ class Boid {
 
   // Handle the 3 forces on each boid and add each force to a boid's accel. 
   public void flock(LinkedList<Boid> boids, LinkedList<Vec2> obstacles, boolean toggle){ 
-    acc.add(separate(boids).times(2));
+    // ALTER THIS VALUE TO MAKE THEM SEPERATE MORE
+    acc.add(separate(boids).times(1.2));
     acc.add(avoid(obstacles, toggle));
     acc.add(align(boids));
     acc.add(cohesion(boids));
