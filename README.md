@@ -68,8 +68,8 @@ Vec2 separate (LinkedList<Boid> boids){
   }
 </pre></code>
 
+## Image Rotation
 This block of code is used for rotating the image. It was probably the other significant part about the project, other than the boid implementation.
-
 <pre><code>
 float theta = (float) Math.atan2(b.vel.y, b.vel.x);
 pushMatrix();
