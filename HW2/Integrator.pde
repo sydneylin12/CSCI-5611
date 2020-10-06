@@ -11,7 +11,7 @@
 //    -A version of midpoint integration which returs a list of intermediate values
 //    -A version of Eulerian integration which returs a list of intermediate values
 
-//Eulerian Integration
+//Eulerian Integration ALREADY DONE
 //Assume the current slope dx/dt holds true for the entire range dt
 float eulerian(float t_start, float x_start, int n_steps, float dt){
   float x = x_start;
@@ -77,7 +77,7 @@ ArrayList<Float> eulerianList(float t_start, float x_start, int n_steps, float d
   ArrayList<Float> xVals = new ArrayList<Float>();
   float x = x_start;
   float t = t_start;
-  xVals.add(x);
+  xVals.add(eulerian(t, x, n_steps, dt));
   for(int i = 0; i < n_steps; i++){
     x += dxdt(t,x)*dt;
     t += dt;
@@ -91,7 +91,7 @@ ArrayList<Float> midpointList(float t_start, float x_start, int n_steps, float d
   ArrayList<Float> xVals = new ArrayList<Float>();
   float x = x_start;
   float t = t_start;
-  xVals.add(x);
+  xVals.add(midpoint(t, x, n_steps, dt));
   for(int i = 0; i < n_steps; i++){
     x += dxdt(t,x)*dt;
     t += dt;
