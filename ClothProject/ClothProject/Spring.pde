@@ -64,18 +64,7 @@ public class Spring {
     }
     else force.x = 0;
     
-    // Add force from above neighbor
-    if(corner != null){
-      dir = pos.minus(corner.pos);
-      currentLength = dir.length();
-      dir.normalize();
-      v1 = dot(dir, corner.vel);
-      v2 = dot(dir, vel);
-      fNet = -k * (restingLength - currentLength) - kv * (v1-v2);
-      vel.sub(dir.times(fNet * dt));
-      corner.vel.add(dir.times(fNet * dt));
-    }
-    else force.z = 0;
+    handleBallCollisions();
     
     acc.y = force.y + gravity;
     acc.z = force.z;
@@ -89,13 +78,16 @@ public class Spring {
   }
   
   // TODO!
-  public void handleBallCollisions(){
-    float ballDistance = pos.minus(ballPos).length();
-    if(ballDistance < radius){
-      Vec3 n = ballPos.minus(pos);
-      //n.normalize();
-      //Vec3 bounce = n.times(dot(vel, n));
-      //vel = vel.minus(bounce);
+  public void handleBallCollisions(){ 
+    float ballDistance = pos.distanceTo(ballPos);
+    if (ballDistance < radius) {
+      Vec3 normal = new Vec3();
+      normal = ballPos.minus(pos);
+      normal.mul(-1);
+      normal.normalize();
+      Vec3 bounce = new Vec3();
+      bounce = normal.times(dot(vel,normal));
+      vel = vel.minus(bounce);
     }
   }
 }

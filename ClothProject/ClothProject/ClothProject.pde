@@ -33,8 +33,8 @@ float dt = 0.0000001;
 float heightOffset = -25;
 float restingLength = 1;
       
-float k = 1000000; 
-float kv = 10000;
+float k = 80000; 
+float kv = 4000;
 
 ArrayList<ArrayList<Spring>> springs = new ArrayList<ArrayList<Spring>>();
 
@@ -73,7 +73,9 @@ public void draw(){
   
   drawSphere();
   lines();
-  for(int i = 0; i < springs.size(); i++) moveCloth();
+  for(int i = 0; i < springs.size(); i++){
+    moveCloth();
+  }
   if(keyPressed) moveBall(key);
 }
 
@@ -120,7 +122,7 @@ public void moveCloth(){
         Spring above = springs.get(i-1).get(j);
         current.applyForce(null, above, null);
       }
-      else if(i == 0 && j >= 0){
+      else if(i == 0 && j > 0){
         Spring left = springs.get(i).get(j-1);
         current.applyForce(left, null, null);
       }
