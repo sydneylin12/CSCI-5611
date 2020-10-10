@@ -28,10 +28,16 @@ float eulerian(float t_start, float x_start, int n_steps, float dt){
 //Compute the derivative at a 1/2 timestep ahead
 //Use the derivative from a 1/2 timestep ahead back at the original state
 float midpoint(float t_start, float x_start, int n_steps, float dt){
+  // https://www.nbodies.com/computational-physics/ode/leapfrog-integration
+  // implementation from the "leapfrog method" above
   float x = x_start;
   float t = t_start;
   for(int i = 0; i < n_steps; i++){
-    x += dxdt(t + 0.5, x + 0.5) * dt;
+    // Regular x + derivative * 
+    float half = x + dxdt(t, x) * (dt/2);
+    // Time half step head + x calculated half step ahead
+    float dHalf = dxdt(t+dt/2, half);
+    x += dHalf * dt;
     t += dt;
   }
   return x;
@@ -77,11 +83,11 @@ ArrayList<Float> eulerianList(float t_start, float x_start, int n_steps, float d
   ArrayList<Float> xVals = new ArrayList<Float>();
   float x = x_start;
   float t = t_start;
-  xVals.add(eulerian(t, x, n_steps, dt));
+  xVals.add(x);
   for(int i = 0; i < n_steps; i++){
-    x += dxdt(t,x)*dt;
+    x += dxdt(t, x) * dt;
     t += dt;
-    xVals.add(eulerian(t, x, n_steps, dt));
+    xVals.add(x);
   }
   return xVals;
 }
@@ -91,11 +97,13 @@ ArrayList<Float> midpointList(float t_start, float x_start, int n_steps, float d
   ArrayList<Float> xVals = new ArrayList<Float>();
   float x = x_start;
   float t = t_start;
-  xVals.add(midpoint(t, x, n_steps, dt));
+  xVals.add(x);
   for(int i = 0; i < n_steps; i++){
-    x += dxdt(t,x)*dt;
+    float half = x + dxdt(t, x) * (dt/2);
+    float dHalf = dxdt(t+dt/2, half);
+    x += dHalf * dt;
     t += dt;
-    xVals.add(midpoint(t, x, n_steps, dt));
+    xVals.add(x);
   }
   return xVals;
 }

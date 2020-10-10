@@ -1,4 +1,3 @@
-//Vector Library [2D]
 //CSCI 5611 Vector 3 from HW1
 
 public class Vec3 {
@@ -41,7 +40,6 @@ public class Vec3 {
   }
   
   public void add(Vec3 rhs){
-    // ...
     x+=rhs.x;
     y+=rhs.y;
     z+=rhs.z;
@@ -51,8 +49,7 @@ public class Vec3 {
     return new Vec3(x-rhs.x,y-rhs.y,z-rhs.z);
   }
   
-  public void subtract(Vec3 rhs){
-    // ...
+  public void sub(Vec3 rhs){
     x-=rhs.x;
     y-=rhs.y;
     z-=rhs.z;
@@ -63,7 +60,6 @@ public class Vec3 {
   }
   
   public void mul(float rhs){
-    // ...
     x*=rhs;
     y*=rhs;
     z*=rhs;
@@ -77,7 +73,6 @@ public class Vec3 {
   }
   
   public void normalize(){
-    // ...
     float len = length();
     if(len == 0) return;
     x /= len;
@@ -93,7 +88,6 @@ public class Vec3 {
   
   //If the vector is longer than maxL, shrink it to be maxL otherwise do nothing
   public void clampToLength(float maxL){
-    // ...
     if(length() > maxL){
       float temp = length();
       x = x / temp * maxL;
@@ -104,7 +98,6 @@ public class Vec3 {
   
   //Grow or shrink the vector have a length of maxL
   public void setToLength(float newL){
-    // ...
     float temp = length();
     x = x / temp * newL;
     y = y / temp * newL;
