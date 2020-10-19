@@ -84,8 +84,7 @@ public class Spring {
     vel.z += acc.z * dt;
     vel.x += acc.x * dt;
     
-    // Add friction from "air"
-    pos.add(vel);
+    pos.add(vel.times(5));
     
   }
  

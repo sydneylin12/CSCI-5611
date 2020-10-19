@@ -28,9 +28,9 @@ PeasyCam cam;
 // Start the ball back a bit before the cloth
 Vec3 ballPos = new Vec3(0, 0, 10);
 
-int n = 5;
+int n = 20;
 float dt = 0.0000001;
-float heightOffset = -25;
+float heightOffset = -50;
 float restingLength = 5;
 int length = 5; // All springs will be of length apart (RESTING)
       
@@ -45,9 +45,9 @@ public void setup(){
   size(1200, 800, P3D);
   
   // Initialize the framework camera with min/max zoom distance
-  cam = new PeasyCam(this, 125);
+  cam = new PeasyCam(this, 200);
   cam.setMinimumDistance(75);
-  cam.setMaximumDistance(150);
+  cam.setMaximumDistance(300);
   
   // Everything white
   fill(255);
@@ -144,8 +144,8 @@ public void moveCloth(){
         pushMatrix();
         fill(255,0,0);
         stroke(255, 0, 0);
-        triangle();
-        popM
+        triangle(10, 10, 10, 10, 10, 10);
+        popMatrix();
      
       
       //Apply air resistance
@@ -153,4 +153,5 @@ public void moveCloth(){
       
     } // End nested for
   }
+}
 }
