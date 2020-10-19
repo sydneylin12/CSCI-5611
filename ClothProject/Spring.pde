@@ -1,4 +1,3 @@
-
 // Spring class for cloth
 public class Spring {
   public Vec3 pos;
@@ -84,24 +83,26 @@ public class Spring {
     vel.z += acc.z * dt;
     vel.x += acc.x * dt;
     
-    pos.add(vel.times(5));
+    pos.add(vel.times(20));
     
   }
  
   public void handleBallCollisions(){
     float ballDistance = pos.minus(ballPos).length();
-    if(ballDistance < radius + 0.1){
+    if(ballDistance < radius + 0.5){
       Vec3 n = ballPos.minus(pos).times(-1);
       n.normalize();
       Vec3 bounce = n.times(dot(vel, n));
       vel = vel.minus(bounce.times(1.5));
-      pos = pos.plus(n.times(0.1 + radius - ballDistance));
+      pos = pos.plus(n.times(0.5 + radius - ballDistance));
     }
   }
   
    public void applyDragForce (Spring left, Spring above, Spring corner){
-     float cons = - 0.0045;
-     Vec3 air = new Vec3 (0, 0, 0);
+     float cons = - 0.0045; // Equal to -1/4*rho*dragConstant
+     Vec3 air = new Vec3(0, 0, 0);
+     
+     // Drag force for the 1st triangle
      Vec3 velAvg = vel.plus(left.vel).plus(above.vel).times(1.0/3).minus(air);
      Vec3 normal = cross(left.pos.minus(pos), above.pos.minus(pos));
      Vec3 drag = normal.times(cons*dot(normal, velAvg)*velAvg.length()/normal.length());
@@ -109,6 +110,7 @@ public class Spring {
      above.vel = above.vel.plus(drag);
      left.vel = left.vel.plus(drag);
      
+     // Drag force for the 2ndd triangle
      velAvg = corner.vel.plus(left.vel).plus(above.vel).times(1.0/3).minus(air);
      normal = cross(left.pos.minus(corner.pos), above.pos.minus(corner.pos));
      drag = normal.times(cons*dot(normal, velAvg)*velAvg.length()/normal.length());

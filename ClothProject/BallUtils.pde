@@ -1,4 +1,3 @@
-
 float radius = 30.0;
 
 // Ball controls
