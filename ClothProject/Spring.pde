@@ -21,7 +21,7 @@ public class Spring {
   // Do all the physics here
   // @param left, the left neighbor of the spring, null if there is none
   // @param above, the spring directly above the current one, null if none
-  public void applyForce(Spring left, Spring above, Spring corner){
+  public void applySpringForce(Spring left, Spring above, Spring corner){
     if(pinned) return;
     float v1 = 0;
     float v2 = 0;
@@ -64,7 +64,18 @@ public class Spring {
     }
     else force.x = 0;
     
-    handleBallCollisions();
+    // Add force from above neighbor
+    if(corner != null){
+      dir = pos.minus(corner.pos);
+      currentLength = dir.length();
+      dir.normalize();
+      v1 = dot(dir, corner.vel);
+      v2 = dot(dir, vel);
+      fNet = -k * (restingLength - currentLength) - kv * (v1-v2);
+      vel.sub(dir.times(fNet * dt));
+      corner.vel.add(dir.times(fNet * dt));
+    }
+    else force.z = 0;
     
     acc.y = force.y + gravity;
     acc.z = force.z;
@@ -75,19 +86,21 @@ public class Spring {
     
     // Add friction from "air"
     pos.add(vel);
+    
   }
-  
-  // TODO!
-  public void handleBallCollisions(){ 
-    float ballDistance = pos.distanceTo(ballPos);
-    if (ballDistance < radius) {
-      Vec3 normal = new Vec3();
-      normal = ballPos.minus(pos);
-      normal.mul(-1);
-      normal.normalize();
-      Vec3 bounce = new Vec3();
-      bounce = normal.times(dot(vel,normal));
-      vel = vel.minus(bounce);
+ 
+  public void handleBallCollisions(){
+    float ballDistance = pos.minus(ballPos).length();
+    if(ballDistance < radius + 0.1){
+      Vec3 n = ballPos.minus(pos).times(-1);
+      n.normalize();
+      Vec3 bounce = n.times(dot(vel, n));
+      vel = vel.minus(bounce.times(1.5));
+      pos = pos.plus(n.times(0.1 + radius - ballDistance));
     }
   }
+  
+  //public void
+  
+ 
 }

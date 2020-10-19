@@ -28,13 +28,16 @@ PeasyCam cam;
 // Start the ball back a bit before the cloth
 Vec3 ballPos = new Vec3(0, 0, 10);
 
-int n = 50;
+int n = 5;
 float dt = 0.0000001;
 float heightOffset = -25;
-float restingLength = 1;
+float restingLength = 5;
+int length = 5; // All springs will be of length apart (RESTING)
       
-float k = 80000; 
-float kv = 4000;
+//float k = 1000000; 
+//float kv = 10000;
+float k = 1000000; 
+float kv = 10000;
 
 ArrayList<ArrayList<Spring>> springs = new ArrayList<ArrayList<Spring>>();
 
@@ -52,9 +55,8 @@ public void setup(){
   
   // Initialize springs here
   for(int i = 0; i < n; i++){
-    // All springs will be of length 1 apart (RESTING)
     ArrayList<Spring> temp = new ArrayList<Spring>();
-    for(int j = 0; j < n; j++) temp.add(new Spring(i, heightOffset, j));
+    for(int j = 0; j < n; j++) temp.add(new Spring(length*i, heightOffset, length*j));
     springs.add(temp);
   }
   
@@ -73,9 +75,7 @@ public void draw(){
   
   drawSphere();
   lines();
-  for(int i = 0; i < springs.size(); i++){
-    moveCloth();
-  }
+  for(int i = 0; i < springs.size(); i++) moveCloth();
   if(keyPressed) moveBall(key);
 }
 
@@ -115,24 +115,42 @@ public void moveCloth(){
   for(int i = 0; i < n; i++){
     for(int j = 0; j < n; j++){
       Spring current = springs.get(i).get(j);
+      //Build the cloth
       if(i == 0 && j == 0){
-        current.applyForce(null, null, null);
+        current.applySpringForce(null, null, null);
       }
       else if(i > 0 && j == 0){
         Spring above = springs.get(i-1).get(j);
-        current.applyForce(null, above, null);
+        current.applySpringForce(null, above, null);
       }
-      else if(i == 0 && j > 0){
+      else if(i == 0 && j >= 0){
         Spring left = springs.get(i).get(j-1);
-        current.applyForce(left, null, null);
+        current.applySpringForce(left, null, null);
       }
       else{
         Spring above = springs.get(i-1).get(j);
         Spring left = springs.get(i).get(j-1);
         // This does not work yet
         Spring corner = springs.get(i-1).get(j-1);
-        current.applyForce(left, above, null);
+        current.applySpringForce(left, above, null);
       }
+      
+      //Handle collisions
+       current.handleBallCollisions();
+       
+      //Apply drag force
+
+      if (i!=n-1 && j!=n-1){
+        pushMatrix();
+        fill(255,0,0);
+        stroke(255, 0, 0);
+        triangle();
+        popM
+     
+      
+      //Apply air resistance
+       
+      
     } // End nested for
   }
 }
