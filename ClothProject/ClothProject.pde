@@ -9,27 +9,24 @@ Controls:
 Scroll wheel: move in/out
 Mouse drag: rotate/pan camera
 WASD: move ball
-
-
 Checklist:
-Multiple ropes: YES 50 
-Cloth simulation: YES 20
-Air drag: Partial credit 5
-3D camera and rendering: YES 20
-User interaction: Partially (camera can move but ball does not interact w/ cloth) (5/10)? 
-Realistic speed: YES?
+Multiple ropes: YES
+Cloth simulation: YES 
+Air drag: YES
+3D camera and rendering: YES
+User interaction: YES
+Realistic speed: YES
 Ripping/tearing: NO
 Water: NO
-Art contest: 2?
-Project video: 10
-Total: 112
+Art contest: Yes
+Project video: YES
 */
 import peasy.*;
 
 PeasyCam cam;
 
 // Start the ball back a bit before the cloth
-Vec3 ballPos = new Vec3(50, 10, 50);
+Vec3 ballPos = new Vec3(50, 40, 50);
 
 int n = 20;
 float dt = 0.0000001;
@@ -120,7 +117,7 @@ public void moveCloth(){
         Spring left = springs.get(i).get(j-1);
         Spring corner = springs.get(i-1).get(j-1);
         current.applySpringForce(left, above, null);
-        current.applyDragForce(left, above, corner);
+        current.applyDragForce(left, above, corner, dt);
       }
       
       // Handle collisions

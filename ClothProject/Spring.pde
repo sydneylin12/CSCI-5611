@@ -83,7 +83,7 @@ public class Spring {
     vel.z += acc.z * dt;
     vel.x += acc.x * dt;
     
-    pos.add(vel.times(20));
+    pos.add(vel.times(40));
     
   }
  
@@ -98,8 +98,8 @@ public class Spring {
     }
   }
   
-   public void applyDragForce (Spring left, Spring above, Spring corner){
-     float cons = - 0.0045; // Equal to -1/4*rho*dragConstant
+   public void applyDragForce (Spring left, Spring above, Spring corner, float dt){
+     float cons = - 0.02; // Equal to -1/4*rho*dragConstant
      Vec3 air = new Vec3(0, 0, 0);
      
      // Drag force for the 1st triangle
