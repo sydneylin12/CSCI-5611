@@ -14,12 +14,15 @@ WASD: move ball
 Checklist:
 Multiple ropes: YES 50 
 Cloth simulation: YES 20
-Air drag: NO
-3D camera: YES 20
-User interaction: Partially (camera can move but ball does not interact w/ cloth) (5/10)?
-Realistic speed: NO
+Air drag: Partial credit 5
+3D camera and rendering: YES 20
+User interaction: Partially (camera can move but ball does not interact w/ cloth) (5/10)? 
+Realistic speed: YES?
 Ripping/tearing: NO
 Water: NO
+Art contest: 2?
+Project video: 10
+Total: 112
 */
 import peasy.*;
 
@@ -32,9 +35,10 @@ int n = 20;
 float dt = 0.0000001;
 float heightOffset = -50;
 float restingLength = 5;
+PImage texture;
       
 
-float k = 1000000; 
+float k = 100000; 
 float kv = 10000;
 
 ArrayList<ArrayList<Spring>> springs = new ArrayList<ArrayList<Spring>>();
@@ -47,10 +51,6 @@ public void setup(){
   cam.setMinimumDistance(75);
   cam.setMaximumDistance(300);
   
-  // Everything white
-  fill(255);
-  stroke(255);
-  
   // Initialize springs here
   for(int i = 0; i < n; i++){
     ArrayList<Spring> temp = new ArrayList<Spring>();
@@ -59,18 +59,11 @@ public void setup(){
   }
   
   for(int i = 0; i < n; i++) springs.get(0).get(i).pinned = true;
-  
-  // If pinning all 4 corners, 1 doesnt get pinned properly
-  //springs.get(0).get(0).pinned = true;
-  //springs.get(0).get(n-1).pinned = true;
-  //springs.get(n-1).get(0).pinned = true;
-  //springs.get(n-1).get(n-1).pinned = true;
 }
 
 public void draw(){
   lights();
   background(0);
-  
   drawSphere();
   lines();
   for(int i = 0; i < springs.size(); i++) moveCloth();
@@ -78,10 +71,6 @@ public void draw(){
 }
 
 public void lines(){
-  // Set white again
-  fill(255);
-  stroke(255);
-  
   for(int i = 1; i < n; i++){
     ArrayList<Spring> temp = springs.get(i);
     for(int j = 1; j < n; j++){
@@ -110,6 +99,7 @@ public void lines(){
 
 // Iterate through the spring array and have springs apply forces to their neighbors
 public void moveCloth(){
+  textureCloth();
   for(int i = 0; i < n; i++){
     for(int j = 0; j < n; j++){
       Spring current = springs.get(i).get(j);
@@ -128,18 +118,38 @@ public void moveCloth(){
       else{
         Spring above = springs.get(i-1).get(j);
         Spring left = springs.get(i).get(j-1);
-        // This does not work yet
         Spring corner = springs.get(i-1).get(j-1);
         current.applySpringForce(left, above, null);
         current.applyDragForce(left, above, corner);
       }
       
-      //Handle collisions
-       current.handleBallCollisions();
-       
-      //Apply drag force
+      // Handle collisions
+      current.handleBallCollisions();
+    }// End nested for
+  }
+}// End moveCloth
 
-     
-  }// End nested for
-}
+public void textureCloth(){
+    for(int i = 0; i < n-1; i++){
+      for(int j = 0; j < n-1; j++){
+        pushMatrix();
+        beginShape();
+        fill(0, 0, 255);
+        noStroke();
+        vertex(springs.get(i).get(j).pos.x, springs.get(i).get(j).pos.y, springs.get(i).get(j).pos.z, (float)i/n, (float)j/n);
+        vertex(springs.get(i+1).get(j).pos.x, springs.get(i+1).get(j).pos.y, springs.get(i+1).get(j).pos.z, (float)(i+1)/n, (float)j/n);
+        vertex(springs.get(i).get(j+1).pos.x, springs.get(i).get(j+1).pos.y, springs.get(i).get(j+1).pos.z, (float)i/n, (float)(j+1)/n);
+        endShape();
+        beginShape();
+        texture(texture);
+        textureMode(NORMAL);
+        fill(0, 255, 0);
+        noStroke();
+        vertex(springs.get(i+1).get(j+1).pos.x, springs.get(i+1).get(j+1).pos.y, springs.get(i+1).get(j+1).pos.z, (float)(i+1)/n, (float)(j+1)/n);
+        vertex(springs.get(i+1).get(j).pos.x, springs.get(i+1).get(j).pos.y, springs.get(i+1).get(j).pos.z, (float)(i+1)/n, (float)j/n);
+        vertex(springs.get(i).get(j+1).pos.x, springs.get(i).get(j+1).pos.y, springs.get(i).get(j+1).pos.z, (float)i/n, (float)(j+1)/n);
+        endShape();
+        popMatrix();
+      }
+    }
 }
