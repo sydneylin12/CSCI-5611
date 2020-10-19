@@ -1,5 +1,5 @@
 
-float radius = 10.0;
+float radius = 30.0;
 
 // Ball controls
 public void moveBall(char dir) {
