@@ -100,7 +100,7 @@ public class Spring {
   }
   
    public void applyDragForce (Spring left, Spring above, Spring corner){
-     float cons = - 12;
+     float cons = - 0.0045;
      Vec3 air = new Vec3 (0, 0, 0);
      Vec3 velAvg = vel.plus(left.vel).plus(above.vel).times(1.0/3).minus(air);
      Vec3 normal = cross(left.pos.minus(pos), above.pos.minus(pos));
@@ -111,7 +111,7 @@ public class Spring {
      
      velAvg = corner.vel.plus(left.vel).plus(above.vel).times(1.0/3).minus(air);
      normal = cross(left.pos.minus(corner.pos), above.pos.minus(corner.pos));
-     Vec3 drag = normal.times(cons*dot(normal, velAvg)*velAvg.length()/normal.length());
+     drag = normal.times(cons*dot(normal, velAvg)*velAvg.length()/normal.length());
      corner.vel = corner.vel.plus(drag);
      above.vel = above.vel.plus(drag);
      left.vel = left.vel.plus(drag);   

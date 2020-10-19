@@ -34,7 +34,7 @@ float heightOffset = -50;
 float restingLength = 5;
       
 
-float k = 1000000; 
+float k = 100000; 
 float kv = 10000;
 
 ArrayList<ArrayList<Spring>> springs = new ArrayList<ArrayList<Spring>>();
@@ -135,10 +135,7 @@ public void moveCloth(){
       }
       
       //Handle collisions
-       current.handleBallCollisions();
-       
-      //Apply drag force
-
+      current.handleBallCollisions();
      
   }// End nested for
 }
