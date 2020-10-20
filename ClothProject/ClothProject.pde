@@ -33,6 +33,8 @@ float dt = 0.0000001;
 float heightOffset = -50;
 float restingLength = 5;
 PImage texture;
+
+boolean debug = true;
       
 
 float k = 100000; 
@@ -65,6 +67,7 @@ public void draw(){
   lines();
   for(int i = 0; i < springs.size(); i++) moveCloth();
   if(keyPressed) moveBall(key);
+  if(debug) System.out.println("Frame rate is: " + frameRate + " fps");  
 }
 
 public void lines(){
