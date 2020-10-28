@@ -40,8 +40,6 @@ import java.util.*;
 // intended to illustrate the basic set-up for the assignmtent, don't assume 
 // this example funcationality is correct and end up copying it's mistakes!).
 
-
-
 //Here, we represent our graph structure as a neighbor list
 //You can use any graph representation you like
 ArrayList<Integer>[] neighbors = new ArrayList[maxNumNodes];  //A list of neighbors can can be reached from a given node
@@ -76,19 +74,26 @@ int closestNode(Vec2 point, Vec2[] nodePos, int numNodes){
   return closestID;
 }
 
-// TODO: this entire function
+/**
+* Returns path of an A* function on the PRM
+* @param startPos Vec2 of start point
+* @param endPos Vec2 of end point
+* @param centers, array of obstacle centers
+* @param radii, array of obstacle radii
+* @param numObstacles, the number of obstacles
+* @param nodePos, position of all nodes in Vector 2D form
+* @param numNodes, the number of vertices/nodes in the graph
+*/
 ArrayList<Integer> planPath(Vec2 startPos, Vec2 goalPos, Vec2[] centers, float[] radii, int numObstacles, Vec2[] nodePos, int numNodes){
-  ArrayList<Integer> path = new ArrayList();
   int startID = closestNode(startPos, nodePos, numNodes);
   int goalID = closestNode(goalPos, nodePos, numNodes);  
-  ArrayList<Integer> a = aStar(nodePos, numNodes, centers, radii, startID, goalID);
-  ArrayList<Integer> b = path = dijkstra(nodePos, numNodes, centers, radii, startID, goalID);
-  
-  System.out.println("A-star Path: " + a.toString());
-  System.out.println("Dijkstra Path: " + b.toString());
-  
-  return a;
+  ArrayList<Integer> astar = aStar(nodePos, numNodes, centers, radii, startID, goalID, startPos, goalPos);
+  System.out.println("Start ID: " + startID + ", Goal ID: " + goalID);
+  System.out.println("A-star Path: " + astar.toString());
+  return astar;
 }
+
+// CODE BELOW IS FROM HW3
 
 /**
 * Dijkstra's algorithm implementation

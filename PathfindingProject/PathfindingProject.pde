@@ -1,149 +1,70 @@
-//CSCI 5611 - Graph Search & Planning
-//PRM Sample Code [HW3]
-//Instructor: Stephen J. Guy <sjguy@umn.edu>
+// CSCI 5611 project 3
+// Sid Lin - linx1052
+// Noah Park - park1623
 
-//This is a test harness designed to help you test & debug your PRM.
+/* USAGE:
+-On start-up your PRM will be tested on a random scene and the results printed
+-Left clicking will set a red goal, right clicking the blue start
+-The arrow keys will move the circular obstacle with the heavy outline
+-Pressing 'r' will randomize the obstacles and re-run the tests 
+*/
 
-//USAGE:
-// On start-up your PRM will be tested on a random scene and the results printed
-// Left clicking will set a red goal, right clicking the blue start
-// The arrow keys will move the circular obstacle with the heavy outline
-// Pressing 'r' will randomize the obstacles and re-run the tests
+/*
+TODO LIST:
+Simple agent navigation: 50 - ALMOST DONE except the speed
+3d rendinering: 10 - possibly use peasycam/vec3
+Improved agent rendering: 10 - i dunno use some textures or whatever
+Orientation smoothing: 10 - DONE
+Planning rotation: 10 - idk
+User scenario editing: 10: - add more circles
+Realtime user interaction: 10 - idk
+Multiple agents: 10 - idk
+Crowd: 20 - idk
+Website: 10
+*/
 
-//Change the below parameters to change the scenario/roadmap size
+import java.util.*;
+
+// OBSTACLE VARIABLES
 int numObstacles = 100;
 int numNodes  = 100;
-  
-//A list of circle obstacles
 static int maxNumObstacles = 1000;
-
 Vec2 circlePos[] = new Vec2[maxNumObstacles]; //Circle positions
 float circleRad[] = new float[maxNumObstacles];  //Circle radii
 
+// START/END/PATHING VARIABLES
 Vec2 startPos = new Vec2(100,500);
 Vec2 goalPos = new Vec2(500,200);
+Vec2 currPos = new Vec2(0, 0);
+ArrayList<Integer> curPath; // Holds the shortest path
+LinkedList<Vec2> pathOfVectors; // "Queue" of node positions for the path
 
+// NODE VARIABLES
 static int maxNumNodes = 1000;
 Vec2[] nodePos = new Vec2[maxNumNodes];
 
-// Generate non-colliding PRM nodes
-void generateRandomNodes(int numNodes, Vec2[] circleCenters, float[] circleRadii){
-  for (int i = 0; i < numNodes; i++){
-    Vec2 randPos = new Vec2(random(width),random(height));
-    boolean insideAnyCircle = pointInCircleList(circleCenters,circleRadii,numObstacles,randPos);
-    while (insideAnyCircle){
-      randPos = new Vec2(random(width),random(height));
-      insideAnyCircle = pointInCircleList(circleCenters,circleRadii,numObstacles,randPos);
-    }
-    nodePos[i] = randPos;
-  }
-}
+// BOOLEAN FLAGS
+boolean pathFound = true;
+boolean traveling = false;
+boolean reachedGoal;
+
+// VARIOUS VARIABLES
+int numCollisions;
+float pathLength;
+int strokeWidth = 2;
+
 
 /**
-* Places random obstacles on the map. Also makes the first one bigger
+* Setup the screen size.
 */
-void placeRandomObstacles(int numObstacles){
-  //Initial obstacle position
-  for (int i = 0; i < numObstacles; i++){
-    Vec2 pos = new Vec2(random(50,950),random(50,700));
-    float rad = (10+40*pow(random(1),3));
-    Pair p = new Pair(pos, rad);
-    circlePos[i] = p.pos;
-    circleRad[i] = p.radius;
-  }
-  circleRad[0] = 30; 
-}
-
-// Holds the shortest path
-ArrayList<Integer> curPath;
-
-int strokeWidth = 2;
 void setup(){
   size(1024,768);
   testPRM();
 }
 
-int numCollisions;
-float pathLength;
-boolean reachedGoal;
-
 /**
-* Testing function for the "goodness" of the path.
+* Draw func to actaully put objects on screen.
 */
-void pathQuality(){
-  Vec2 dir;
-  hitInfo hit;
-  float segmentLength;
-  numCollisions = 9999; pathLength = 9999;
-  if (curPath.size() == 1 && curPath.get(0) == -1) return; //No path found  
-  
-  pathLength = 0; numCollisions = 0;
-  
-  if (curPath.size() == 0 ){ //Path found with no nodes (direct start-to-goal path)
-    segmentLength = startPos.distanceTo(goalPos);
-    pathLength += segmentLength;
-    dir = goalPos.minus(startPos).normalized();
-    hit = rayCircleListIntersect(circlePos, circleRad, numObstacles, startPos, dir, segmentLength);
-    if (hit.hit) numCollisions += 1;
-    return;
-  }
-  
-  segmentLength = startPos.distanceTo(nodePos[curPath.get(0)]);
-  pathLength += segmentLength;
-  dir = nodePos[curPath.get(0)].minus(startPos).normalized();
-  hit = rayCircleListIntersect(circlePos, circleRad, numObstacles, startPos, dir, segmentLength);
-  if (hit.hit) numCollisions += 1
-  ;
-  
-  for (int i = 0; i < curPath.size()-1; i++){
-    int curNode = curPath.get(i);
-    int nextNode = curPath.get(i+1);
-    segmentLength = nodePos[curNode].distanceTo(nodePos[nextNode]);
-    pathLength += segmentLength;
-    
-    dir = nodePos[nextNode].minus(nodePos[curNode]).normalized();
-    hit = rayCircleListIntersect(circlePos, circleRad, numObstacles, nodePos[curNode], dir, segmentLength);
-    if (hit.hit) numCollisions += 1;
-  }
-  
-  int lastNode = curPath.get(curPath.size()-1);
-  segmentLength = nodePos[lastNode].distanceTo(goalPos);
-  pathLength += segmentLength;
-  dir = goalPos.minus(nodePos[lastNode]).normalized();
-  hit = rayCircleListIntersect(circlePos, circleRad, numObstacles, nodePos[lastNode], dir, segmentLength);
-  if (hit.hit) numCollisions += 1;
-}
-
-Vec2 sampleFreePos(){
-  Vec2 randPos = new Vec2(random(width),random(height));
-  boolean insideAnyCircle = pointInCircleList(circlePos,circleRad,numObstacles,randPos);
-  while (insideAnyCircle){
-    randPos = new Vec2(random(width),random(height));
-    insideAnyCircle = pointInCircleList(circlePos,circleRad,numObstacles,randPos);
-  }
-  return randPos;
-}
-
-void testPRM(){
-  long startTime, endTime;
-  
-  placeRandomObstacles(numObstacles);
-  
-  startPos = sampleFreePos();
-  goalPos = sampleFreePos();
-
-  generateRandomNodes(numNodes, circlePos, circleRad);
-  connectNeighbors(circlePos, circleRad, numObstacles, nodePos, numNodes);
-  
-  startTime = System.nanoTime();
-  curPath = planPath(startPos, goalPos, circlePos, circleRad, numObstacles, nodePos, numNodes);
-  endTime = System.nanoTime();
-  pathQuality();
-  
-  println("Nodes:", numNodes," Obstacles:", numObstacles," Time (us):", int((endTime-startTime)/1000),
-          " Path Len:", pathLength, " Path Segment:", curPath.size()+1,  " Num Collisions:", numCollisions);
-}
-
 void draw(){
   strokeWeight(1);
   background(200); //Grey background
@@ -156,40 +77,39 @@ void draw(){
     float r = circleRad[i];
     circle(c.x,c.y,r*2);
   }
-  //Draw the first circle a little special b/c the user controls it
-  fill(240);
-  strokeWeight(2);
-  circle(circlePos[0].x,circlePos[0].y,circleRad[0]*2);
-  strokeWeight(1);
   
-  //Draw PRM Nodes
+  // Draw user controllable circle
+  fill(125);
+  circle(circlePos[0].x,circlePos[0].y,circleRad[0]*2);
+  
+  // Draw PRM Nodes
   fill(0, 255, 0);
   for (int i = 0; i < numNodes; i++){
     circle(nodePos[i].x,nodePos[i].y,5);
   }
   
-  //Draw graph
+  /* Connect all nodes in the roadmap - cleaning this up for now
   stroke(100,100,100);
   strokeWeight(1);
   for (int i = 0; i < numNodes; i++){
-    for (int j : neighbors[i]){
-      line(nodePos[i].x,nodePos[i].y,nodePos[j].x,nodePos[j].y);
-    }
-  }
+    for (int j : neighbors[i]) line(nodePos[i].x,nodePos[i].y,nodePos[j].x,nodePos[j].y);
+  } */
   
-  //Draw Start and Goal
-  fill(20,60,250);
-  //circle(nodePos[startNode].x,nodePos[startNode].y,20);
+  // Draw Start and Goal nodes
+  fill(0, 0, 255);
   circle(startPos.x,startPos.y,20);
-  fill(250,30,50);
-  //circle(nodePos[goalNode].x,nodePos[goalNode].y,20);
+  fill(255, 0, 0);
   circle(goalPos.x,goalPos.y,20);
   
-  if (curPath.size() >0 && curPath.get(0) == -1) return; //No path found
+  // Invalid path
+  if(curPath.size() > 0 && curPath.get(0) == -1){
+    pathFound = false;
+    return; //No path found
+  }
   
-  //Draw Planned Path
+  // Draw the actual planned path
   stroke(20,255,40);
-  strokeWeight(5);
+  strokeWeight(2);
   if (curPath.size() == 0){
     line(startPos.x,startPos.y,goalPos.x,goalPos.y);
     return;
@@ -202,6 +122,19 @@ void draw(){
   }
   line(goalPos.x,goalPos.y,nodePos[curPath.get(curPath.size()-1)].x,nodePos[curPath.get(curPath.size()-1)].y);
   
+  // Reset the stroke
+  stroke(0,0,0);
+
+  // DRAW NODE GOING TO GOAL HERE
+  if(traveling){
+    // If we are at the end of the path
+    if(pathOfVectors.isEmpty()){
+      traveling = false;
+      return;
+    }
+    currPos = travel(currPos, pathOfVectors.peek(), nodePos, curPath);
+    if(currPos.equals(pathOfVectors.peek())) currPos = pathOfVectors.poll();
+  }
 }
 
 boolean shiftDown = false;
@@ -215,6 +148,22 @@ void keyPressed(){
     shiftDown = true;
   }
   
+  if(key == TAB){ // Enable the traveling
+    if(!pathFound) return;
+    System.out.println("Starting path!"); 
+    // Set current position to equal start position
+    currPos = new Vec2(startPos.x, startPos.y);
+    traveling = true;
+    // Duplicate the list to use with pathfinding
+    pathOfVectors = new LinkedList<Vec2>();
+    pathOfVectors.add(startPos);
+    for(int i : curPath) pathOfVectors.add(nodePos[i]);
+    pathOfVectors.add(goalPos);
+    System.out.println(pathOfVectors.toString()); // Should be of size path.length + 2
+    return;
+  }
+  
+  // Moves the circle on the screen
   float speed = 10;
   if (shiftDown) speed = 30;
   if (keyCode == RIGHT){
@@ -231,8 +180,14 @@ void keyPressed(){
   }
   connectNeighbors(circlePos, circleRad, numObstacles, nodePos, numNodes);
   curPath = planPath(startPos, goalPos, circlePos, circleRad, numObstacles, nodePos, numNodes);
+  if(curPath.size() > 0 && curPath.get(0) == -1){
+    pathFound = false;
+    return; //No path found
+  }
+  else pathFound = true;
 }
 
+// Turns off the "extra speed"
 void keyReleased(){
   if (keyCode == SHIFT){
     shiftDown = false;
@@ -240,13 +195,18 @@ void keyReleased(){
 }
 
 void mousePressed(){
+  traveling = false;
+  currPos = null;
   if (mouseButton == RIGHT){
     startPos = new Vec2(mouseX, mouseY);
-    //println("New Start is",startPos.x, startPos.y);
   }
   else{
     goalPos = new Vec2(mouseX, mouseY);
-    //println("New Goal is",goalPos.x, goalPos.y);
   }
   curPath = planPath(startPos, goalPos, circlePos, circleRad, numObstacles, nodePos, numNodes);
+  if(curPath.size() > 0 && curPath.get(0) == -1){
+    pathFound = false;
+    return; //No path found
+  }
+  else pathFound = true;
 }

@@ -2,7 +2,7 @@
 //CSCI 5611 Vector 2 Library [Example]
 // Stephen J. Guy <sjguy@umn.edu>
 
-public class Vec2 {
+public class Vec2{
   public float x, y;
   
   public Vec2(float x, float y){
@@ -13,6 +13,11 @@ public class Vec2 {
   @Override
   public String toString(){
     return "(" + x+ "," + y +")";
+  }
+  
+  // Not actually equals, just checks if 2 points are around the same location
+  public boolean equals(Vec2 other){
+    return pointInCircle(this, 5, other);
   }
   
   public float length(){
