@@ -7,16 +7,20 @@
 -Left clicking will set a red goal, right clicking the blue start
 -The arrow keys will move the circular obstacle with the heavy outline
 -Pressing 'r' will randomize the obstacles and re-run the tests 
+
+ADDED FEATURES:
+-Press 'e' to edit and override the mouse controls. Left or right mouse click will place a white circle and re-compute path.
+-Press 'tab' to move the agent from start to finish.
 */
 
 /*
 TODO LIST:
-Simple agent navigation: 50 - ALMOST DONE except the speed
-3d rendinering: 10 - possibly use peasycam/vec3
+Simple agent navigation: 50 - DONE
+3d rendinering: 10 - idk
 Improved agent rendering: 10 - i dunno use some textures or whatever
-Orientation smoothing: 10 - DONE
+Orientation smoothing: 10 - ALMOST DONE
 Planning rotation: 10 - idk
-User scenario editing: 10: - add more circles
+User scenario editing: 10: - DONE 
 Realtime user interaction: 10 - idk
 Multiple agents: 10 - idk
 Crowd: 20 - idk
@@ -25,10 +29,12 @@ Website: 10
 
 import java.util.*;
 
-// OBSTACLE VARIABLES
-int numObstacles = 100;
+// NODE & OBSTACLE VARIABLES
+int numObstacles = 50;
 int numNodes  = 100;
 static int maxNumObstacles = 1000;
+static int maxNumNodes = 1000;
+Vec2[] nodePos = new Vec2[maxNumNodes];
 Vec2 circlePos[] = new Vec2[maxNumObstacles]; //Circle positions
 float circleRad[] = new float[maxNumObstacles];  //Circle radii
 
@@ -39,26 +45,28 @@ Vec2 currPos = new Vec2(0, 0);
 ArrayList<Integer> curPath; // Holds the shortest path
 LinkedList<Vec2> pathOfVectors; // "Queue" of node positions for the path
 
-// NODE VARIABLES
-static int maxNumNodes = 1000;
-Vec2[] nodePos = new Vec2[maxNumNodes];
-
 // BOOLEAN FLAGS
 boolean pathFound = true;
 boolean traveling = false;
-boolean reachedGoal;
+boolean reachedGoal = false;
+boolean editing = false;
 
 // VARIOUS VARIABLES
 int numCollisions;
 float pathLength;
 int strokeWidth = 2;
 
+// IMAGE STUFF
+PImage tree;
+PImage grass;
 
 /**
 * Setup the screen size.
 */
 void setup(){
   size(1024,768);
+  tree = loadImage("tree.png");
+  grass = loadImage("grass.jpg");
   testPRM();
 }
 
@@ -67,7 +75,8 @@ void setup(){
 */
 void draw(){
   strokeWeight(1);
-  background(200); //Grey background
+  //background(200); //Grey background
+  image(grass, 0, 0, width, height);
   stroke(0,0,0);
   fill(255,255,255);
   
@@ -75,7 +84,8 @@ void draw(){
   for (int i = 0; i < numObstacles; i++){
     Vec2 c = circlePos[i];
     float r = circleRad[i];
-    circle(c.x,c.y,r*2);
+    //circle(c.x,c.y,r*2);
+    image(tree, c.x-r, c.y-r, r*2, r*2);
   }
   
   // Draw user controllable circle
@@ -144,7 +154,7 @@ void keyPressed(){
     return;
   }
   
-  if (keyCode == SHIFT){
+  if(keyCode == SHIFT){
     shiftDown = true;
   }
   
@@ -163,6 +173,13 @@ void keyPressed(){
     return;
   }
   
+  // Toggle edit mode
+  if(key == 'e'){
+    editing = !editing;
+    System.out.println("EDITING: " + editing);
+    return;
+  }
+  
   // Moves the circle on the screen
   float speed = 10;
   if (shiftDown) speed = 30;
@@ -178,13 +195,20 @@ void keyPressed(){
   if (keyCode == DOWN){
     circlePos[0].y += speed;
   }
+  computePath();
+}
+
+/**
+* Helper to compute path after a circle is drawn or added
+*/
+void computePath(){
   connectNeighbors(circlePos, circleRad, numObstacles, nodePos, numNodes);
   curPath = planPath(startPos, goalPos, circlePos, circleRad, numObstacles, nodePos, numNodes);
   if(curPath.size() > 0 && curPath.get(0) == -1){
     pathFound = false;
     return; //No path found
   }
-  else pathFound = true;
+  else pathFound = true; 
 }
 
 // Turns off the "extra speed"
@@ -197,6 +221,13 @@ void keyReleased(){
 void mousePressed(){
   traveling = false;
   currPos = null;
+  
+  if(editing){
+    addCircle();
+    return; 
+  }
+  
+  // If not editing
   if (mouseButton == RIGHT){
     startPos = new Vec2(mouseX, mouseY);
   }
@@ -209,4 +240,21 @@ void mousePressed(){
     return; //No path found
   }
   else pathFound = true;
+}
+
+/**
+* Adds a circle to the map
+*/
+void addCircle(){
+   if(numObstacles >= maxNumObstacles){
+     System.out.println("Maximum number of obstacled reached: " + maxNumObstacles);
+     return;
+   }
+   fill(255);
+   int idx = numObstacles++;
+   float rad = (10+40*pow(random(1),3));
+   circlePos[idx] = new Vec2(mouseX, mouseY);
+   circleRad[idx] = rad;
+   circle(circlePos[idx].x,circlePos[idx].y,rad*2);
+   computePath();
 }

@@ -107,12 +107,12 @@ ArrayList<Integer> aStar(Vec2[] nodePos, int numNodes, Vec2[] centers, float[] r
 * Makes a purple triangle travel from start to goal pos
 * Also adjusts the orientation of the triangle
 */
-float dt = 0.1;
 Vec2 travel(Vec2 startPos, Vec2 goalPos, Vec2[] nodePos, ArrayList<Integer> path){
   fill(255,0,255);
   Vec2 curr = startPos;
   Vec2 dir = goalPos.minus(curr);
-  curr = curr.plus(dir.times(dt));
+  dir.clampToLength(2);
+  curr = curr.plus(dir);
   float theta = (float) Math.atan2(dir.y, dir.x);
   pushMatrix();
   translate(curr.x, curr.y);
