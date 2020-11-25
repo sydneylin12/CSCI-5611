@@ -45,7 +45,6 @@ public class Flock : MonoBehaviour
     // Collide with walls
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("TRIGGER ENTER!");
         if (!turning)
         {
             newGoalPos = this.transform.position - other.gameObject.transform.position;

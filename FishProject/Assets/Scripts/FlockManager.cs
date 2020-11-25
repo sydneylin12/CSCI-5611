@@ -7,12 +7,16 @@ public class FlockManager : MonoBehaviour
 
     // Prefab for default fish
     public GameObject fishPrefab;
+    public GameObject goldfishPrefab;
 
     // Number of fish
     public int n;
 
     // Array of fish objects
     public GameObject[] fish;
+
+    // ADD ARRAYS HERE FOR MORE FISH
+    public GameObject[] goldfish;
 
     // Speed limit
     public Vector3 swimLimits = new Vector3(10, 10, 10);
@@ -31,13 +35,20 @@ public class FlockManager : MonoBehaviour
     [Range(0.0f, 5.0f)]
     public float rotSpeed;
 
-
-
     // Start is called before the first frame update
     void Start()
     {
+
+        // ARBITRARY
+        swimLimits.x = 25; 
+        swimLimits.z = 25;
+
         // Instantiate the array
         fish = new GameObject[n];
+
+        // Random amount of goldfish
+        goldfish = new GameObject[n - Random.Range(0, n / 2)];
+
         for(int i = 0; i < n; i++)
         {
             // Generate random position for a fish
@@ -50,7 +61,19 @@ public class FlockManager : MonoBehaviour
             fish[i] = (GameObject) Instantiate(fishPrefab, randomPos, Quaternion.identity);
             fish[i].GetComponent<Flock>().manager = this;
         }
+        /*
+        for(int i = 0; i < goldfish.Length; i++)
+        {
+            // Generate random position for a fish
+            float x = Random.Range(-swimLimits.x, swimLimits.x);
+            float y = Random.Range(0, swimLimits.y);
+            float z = Random.Range(-swimLimits.z, swimLimits.z);
+            Vector3 randomPos = this.transform.position + new Vector3(x, y, z);
 
+            // Construct ramdomly placed fish
+            goldfish[i] = (GameObject)Instantiate(goldfishPrefab, randomPos, Quaternion.identity);
+            goldfish[i].GetComponent<Flock>().manager = this;
+        } */
         activateFog();
     }
 
