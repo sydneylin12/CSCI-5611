@@ -8,12 +8,16 @@ public class Flock : MonoBehaviour
     public FlockManager manager;
 
     // Individual boid speed
-    float speed;
+    public float speed = 0.0f;
+    public bool turning = false; // TODO
+
+    // Turn mechanics
+    public Vector3 newGoalPos;
 
     // Start is called before the first frame update
     void Start()
     {
-        speed = Random.Range(manager.minSpeed, manager.maxSpeed);
+        speed = manager.getRandomSpeed();
     }
 
     // Update is called once per frame
@@ -22,9 +26,37 @@ public class Flock : MonoBehaviour
         // Clamp to max speed to avoid bugs lol
         if (speed > 2.0) speed = 2.0f;
 
-        // Translate on the z-axis
+        if (turning)
+        {
+            Vector3 dir = newGoalPos - transform.position;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
+            this.speed = manager.getRandomSpeed();
+        }
+        else
+        {
+            // Do not apply forces every time
+            if (Random.Range(0, 10) < 1) ApplyForces();
+        }
+
+        // Translate on the z-axis (swim forward) NO MATTER WHAT
         transform.Translate(0, 0, Time.deltaTime * speed);
-        ApplyForces();
+    }
+
+    // Collide with walls
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("TRIGGER ENTER!");
+        if (!turning)
+        {
+            newGoalPos = this.transform.position - other.gameObject.transform.position;
+        }
+        turning = true;
+    }
+
+    // Disable turning when collision is done
+    void OnTriggerExit(Collider other)
+    {
+        turning = false;
     }
 
     /// <summary>
@@ -38,6 +70,9 @@ public class Flock : MonoBehaviour
         float avgSpeed = 0.01f;
         float dist;
         int size = 0;
+
+        // Area where fish should flock to
+        Vector3 goalPos = manager.goal;
 
         foreach (GameObject go in fish)
         {
@@ -61,10 +96,10 @@ public class Flock : MonoBehaviour
             }
         }
 
-        if(size > 0) // We have a legit flock
+        if(size > 0) // We have a legit flock (avoid div. by zero)
         {
             // Average the stuff out
-            center = center / size;
+            center = center / size + (goalPos - this.transform.position); // Account for manager goal position
             speed = avgSpeed / size;
 
             // Alignment
