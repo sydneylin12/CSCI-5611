@@ -14,6 +14,12 @@ public class Flock : MonoBehaviour
     // Turn mechanics
     public Vector3 newGoalPos;
 
+    // goal position of fish
+    public Vector3 goal;
+
+    // current number of collisions
+    int numCol = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +30,7 @@ public class Flock : MonoBehaviour
     void Update()
     {
         // Clamp to max speed to avoid bugs lol
-        if (speed > 2.0) speed = 2.0f;
+        if (speed > 2.0) speed = manager.maxSpeed;
 
         if (turning)
         {
@@ -35,7 +41,8 @@ public class Flock : MonoBehaviour
         else
         {
             // Do not apply forces every time
-            if (Random.Range(0, 10) < 1) ApplyForces();
+            //if (Random.Range(0, 10) < 1) 
+            ApplyForces();
         }
 
         // Translate on the z-axis (swim forward) NO MATTER WHAT
@@ -45,17 +52,32 @@ public class Flock : MonoBehaviour
     // Collide with walls
     void OnTriggerEnter(Collider other)
     {
+        numCol++;
+        //Debug.Log("Entered object");
         if (!turning)
         {
-            newGoalPos = this.transform.position - other.gameObject.transform.position;
+            float x = Random.Range(-manager.swimLimits.x, manager.swimLimits.x);
+            float y = Random.Range(2.5f, manager.swimLimits.y);
+            float z = Random.Range(-manager.swimLimits.z, manager.swimLimits.z);
+            newGoalPos = new Vector3(x, y, z);
+            goal = newGoalPos;
+            //newGoalPos = this.transform.position - other.gameObject.transform.position;
+            //goal = newGoalPos;
         }
         turning = true;
+        
     }
 
     // Disable turning when collision is done
     void OnTriggerExit(Collider other)
     {
-        turning = false;
+        //Debug.Log("left object");
+        numCol--;
+        if (numCol == 0)
+        {
+            //Debug.Log("left all objects");
+            turning = false;
+        }
     }
 
     /// <summary>
@@ -71,31 +93,33 @@ public class Flock : MonoBehaviour
         int size = 0;
 
         // Area where fish should flock to
-        Vector3 goalPos = manager.goal;
+        Vector3 goalPos = goal;
 
         foreach (GameObject go in fish)
         {
             dist = Vector3.Distance(go.transform.position, this.transform.position);
 
             // Cannot call on itself
-            if (go != this.gameObject && dist <= manager.radius) // Close enough to flock
+            if (go != this.gameObject && dist <= manager.neighborhood_radius) // Close enough to flock
             {
                 // Cohesion
                 center += go.transform.position;
                 size++;
 
-                // Separation
-                if(dist < 1.0f) // Cant be too close together
-                {
-                    avoid = avoid + (this.transform.position - go.transform.position);
-                }
-
                 Flock other = go.GetComponent<Flock>();
                 avgSpeed += other.speed;
             }
+            if (go != this.gameObject && dist <= manager.neighborhood_radius) // Close enough to flock to start avoiding
+            {
+                // Separation
+                if (dist < 1.0f) // Cant be too close together
+                {
+                    avoid = avoid + (this.transform.position - go.transform.position);
+                }
+            }
         }
 
-        if(size > 0) // We have a legit flock (avoid div. by zero)
+        if (size > 0) // We have a legit flock (avoid div. by zero)
         {
             // Average the stuff out
             center = center / size + (goalPos - this.transform.position); // Account for manager goal position
@@ -103,7 +127,7 @@ public class Flock : MonoBehaviour
 
             // Alignment
             Vector3 dir = (center + avoid) - transform.position;
-            if(dir != Vector3.zero)
+            if (dir != Vector3.zero)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
             }
