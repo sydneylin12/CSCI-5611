@@ -43,6 +43,7 @@ public class Flock : MonoBehaviour
             // Do not apply forces every time
             //if (Random.Range(0, 10) < 1) 
             ApplyForces();
+            checkGoal();
         }
 
         // Translate on the z-axis (swim forward) NO MATTER WHAT
@@ -56,10 +57,7 @@ public class Flock : MonoBehaviour
         //Debug.Log("Entered object");
         if (!turning)
         {
-            float x = Random.Range(-manager.swimLimits.x, manager.swimLimits.x);
-            float y = Random.Range(2.5f, manager.swimLimits.y);
-            float z = Random.Range(-manager.swimLimits.z, manager.swimLimits.z);
-            newGoalPos = new Vector3(x, y, z);
+            newGoalPos = manager.getNewGoal();
             goal = newGoalPos;
             //newGoalPos = this.transform.position - other.gameObject.transform.position;
             //goal = newGoalPos;
@@ -77,6 +75,15 @@ public class Flock : MonoBehaviour
         {
             //Debug.Log("left all objects");
             turning = false;
+        }
+    }
+
+    void checkGoal()
+    {
+        // check if the fish is at the goal. If so, generate a new goal
+        if (Vector3.Distance(goal, transform.position) < 1)
+        {
+            goal = manager.getNewGoal();
         }
     }
 

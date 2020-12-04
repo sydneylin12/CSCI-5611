@@ -19,7 +19,7 @@ public class FlockManager : MonoBehaviour
     public GameObject[] goldfish;
 
     // Speed limit
-    public Vector3 swimLimits = new Vector3(36.0f, 28.0f, 18.0f);
+    public Vector3 swimLimits = new Vector3(34.0f, 26.0f, 16.0f);
 
     //public Vector3 goal = Vector3.zero;
 
@@ -55,20 +55,21 @@ public class FlockManager : MonoBehaviour
         for (int i = 0; i < n; i++)
         {
             // Generate random position and goal for a fish
-            float x = Random.Range(-swimLimits.x, swimLimits.x);
-            float y = Random.Range(2.5f, swimLimits.y/2.0f);
-            float z = Random.Range(-swimLimits.z, swimLimits.z);
-            Vector3 randomPos = new Vector3(x, y, z) + this.transform.position;
-
-            x = Random.Range(-swimLimits.x, swimLimits.x);
-            y = Random.Range(10, swimLimits.y);
-            z = Random.Range(-swimLimits.z, swimLimits.z);
+            Vector3 randomPos = getNewGoal() + this.transform.position;
 
 
             // Construct ramdomly placed fish
-            fish[i] = (GameObject)Instantiate(fishPrefab, randomPos, Quaternion.identity);
+            if (i%2 == 0)
+            {
+                fish[i] = (GameObject)Instantiate(fishPrefab, randomPos, Quaternion.identity);
+            }
+            else
+            {
+                fish[i] = (GameObject)Instantiate(goldfishPrefab, randomPos, Quaternion.identity);
+            }
+            
             fish[i].GetComponent<Flock>().manager = this;
-            fish[i].GetComponent<Flock>().goal = new Vector3(x, y, z);
+            fish[i].GetComponent<Flock>().goal = getNewGoal();
         }
         /*
         for(int i = 0; i < goldfish.Length; i++)
@@ -95,10 +96,7 @@ public class FlockManager : MonoBehaviour
             if (Random.Range(0, 10000) < 50)
             {
                 // Generate random position for a fish
-                float x = Random.Range(-swimLimits.x, swimLimits.x);
-                float y = Random.Range(2.5f, swimLimits.y);
-                float z = Random.Range(-swimLimits.z, swimLimits.z);
-                fish[i].GetComponent<Flock>().goal = this.transform.position + new Vector3(x, y, z);
+                fish[i].GetComponent<Flock>().goal = this.transform.position + getNewGoal();
             }
         }
     }
@@ -106,8 +104,28 @@ public class FlockManager : MonoBehaviour
     void activateFog()
     {
         RenderSettings.fogColor = Camera.main.backgroundColor;
-        RenderSettings.fogDensity = 0.01f;
+        RenderSettings.fogDensity = 0.015f;
         RenderSettings.fog = true;
+    }
+
+    public Vector3 getNewGoal()
+    {
+        // generates a new goal position for the fish
+        float x = Random.Range(-swimLimits.x, swimLimits.x);
+        float y = Random.Range(2.5f, swimLimits.y);
+        float z = Random.Range(-swimLimits.z, swimLimits.z);
+        Vector3 newPos = new Vector3(x, y, z);
+        float tolerance = 3;
+        
+        while (Physics.CheckSphere(newPos, tolerance)) // make sure new goal does not collide with any object
+        {
+            x = Random.Range(-swimLimits.x, swimLimits.x);
+            y = Random.Range(2.5f, swimLimits.y);
+            z = Random.Range(-swimLimits.z, swimLimits.z);
+            newPos = new Vector3(x, y, z);
+        }
+        
+        return newPos;
     }
 
     public float getRandomSpeed()
