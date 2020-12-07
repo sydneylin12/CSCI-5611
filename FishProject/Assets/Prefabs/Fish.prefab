@@ -50,6 +50,7 @@ MonoBehaviour:
   speed: 0
   turning: 0
   newGoalPos: {x: 0, y: 0, z: 0}
+  goal: {x: 0, y: 0, z: 0}
 --- !u!65 &2954740823954606305
 BoxCollider:
   m_ObjectHideFlags: 0

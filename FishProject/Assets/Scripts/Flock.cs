@@ -20,6 +20,8 @@ public class Flock : MonoBehaviour
     // current number of collisions
     int numCol = 0;
 
+    bool tracking = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,6 +31,10 @@ public class Flock : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // If there is no more food
+        if (manager.foodQueue.Count == 0) tracking = false;
+        else tracking = true;
+
         // Clamp to max speed to avoid bugs lol
         if (speed > 2.0) speed = manager.maxSpeed;
 
@@ -40,10 +46,14 @@ public class Flock : MonoBehaviour
         }
         else
         {
-            // Do not apply forces every time
-            //if (Random.Range(0, 10) < 1) 
-            ApplyForces();
-            checkGoal();
+            // Do not apply forces every time - kind of fixes the spinning fish bug
+            // Track 100% of the time
+            if (Random.Range(0, 20) < 1 || tracking)
+            {
+                ApplyForces();
+                checkGoal();
+            }
+            
         }
 
         // Translate on the z-axis (swim forward) NO MATTER WHAT
@@ -54,13 +64,10 @@ public class Flock : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         numCol++;
-        //Debug.Log("Entered object");
         if (!turning)
         {
             newGoalPos = manager.getNewGoal();
             goal = newGoalPos;
-            //newGoalPos = this.transform.position - other.gameObject.transform.position;
-            //goal = newGoalPos;
         }
         turning = true;
         
@@ -73,7 +80,6 @@ public class Flock : MonoBehaviour
         numCol--;
         if (numCol == 0)
         {
-            //Debug.Log("left all objects");
             turning = false;
         }
     }
@@ -92,6 +98,17 @@ public class Flock : MonoBehaviour
     /// </summary>
     void ApplyForces()
     {
+
+        // Override and track the food instead
+        if(tracking)
+        {
+            Debug.Log("TRACKING!");
+            Vector3 toFood = manager.foodQueue.Peek().transform.position;
+            Vector3 dir = toFood - gameObject.transform.position;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
+            return;
+        }
+
         GameObject[] fish = manager.fish;
         Vector3 center = Vector3.zero;
         Vector3 avoid = Vector3.zero;

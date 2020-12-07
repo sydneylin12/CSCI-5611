@@ -7,7 +7,11 @@ public class FlockManager : MonoBehaviour
 
     // Prefab for default fish
     public GameObject fishPrefab;
+    public GameObject fish2Prefab;
     public GameObject goldfishPrefab;
+    private GameObject[] prefabs;
+
+    public GameObject foodPrefab;
 
     // Number of fish
     public int n;
@@ -21,7 +25,7 @@ public class FlockManager : MonoBehaviour
     // Speed limit
     public Vector3 swimLimits = new Vector3(34.0f, 26.0f, 16.0f);
 
-    //public Vector3 goal = Vector3.zero;
+    public Queue<GameObject> foodQueue;
 
     [Header("Fish Settings")]
     [Range(0.0f, 3.0f)]
@@ -46,50 +50,48 @@ public class FlockManager : MonoBehaviour
         swimLimits.z = 18.0f; // half of aqarium width
         swimLimits.y = 28.0f; // aqarium height
 
-        // Instantiate the array
+        // Instantiate the array by HARD CODE!
         fish = new GameObject[n];
 
         // Random amount of goldfish
         goldfish = new GameObject[n - Random.Range(0, n / 2)];
+
+        prefabs = new GameObject[3];
+        prefabs[0] = fishPrefab;
+        prefabs[1] = fish2Prefab;
+        prefabs[2] = goldfishPrefab;
+
+        // Queue of food items
+        foodQueue = new Queue<GameObject>();
 
         for (int i = 0; i < n; i++)
         {
             // Generate random position and goal for a fish
             Vector3 randomPos = getNewGoal() + this.transform.position;
 
-
-            // Construct ramdomly placed fish
-            if (i%2 == 0)
-            {
-                fish[i] = (GameObject)Instantiate(fishPrefab, randomPos, Quaternion.identity);
-            }
-            else
-            {
-                fish[i] = (GameObject)Instantiate(goldfishPrefab, randomPos, Quaternion.identity);
-            }
+            // Get random from fish prefabs
+            int rand = Random.Range(0, 3);
+            fish[i] = (GameObject)Instantiate(prefabs[rand], randomPos, Quaternion.identity);
             
             fish[i].GetComponent<Flock>().manager = this;
             fish[i].GetComponent<Flock>().goal = getNewGoal();
         }
-        /*
-        for(int i = 0; i < goldfish.Length; i++)
-        {
-            // Generate random position for a fish
-            float x = Random.Range(-swimLimits.x, swimLimits.x);
-            float y = Random.Range(0, swimLimits.y);
-            float z = Random.Range(-swimLimits.z, swimLimits.z);
-            Vector3 randomPos = this.transform.position + new Vector3(x, y, z);
-
-            // Construct ramdomly placed fish
-            goldfish[i] = (GameObject)Instantiate(goldfishPrefab, randomPos, Quaternion.identity);
-            goldfish[i].GetComponent<Flock>().manager = this;
-        } */
         activateFog();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Spawn a food here
+            Debug.Log("Spawning food");
+            int randX = Random.Range(-35, 35);
+            int randZ = Random.Range(0, 10);
+            Instantiate(foodPrefab, new Vector3(randX, 27, randZ), Quaternion.identity);
+        }
+        
+
         for (int i = 0; i < n; i++)
         {
             // update goal position every once in awhile
