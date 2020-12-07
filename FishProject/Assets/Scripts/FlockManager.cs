@@ -23,6 +23,7 @@ public class FlockManager : MonoBehaviour
 
     // Holds food gameobjects in the queue
     public Queue<GameObject> foodQueue;
+    public List<GameObject> foodList;
 
     [Header("Fish Settings")]
     [Range(0.0f, 3.0f)]
@@ -57,6 +58,7 @@ public class FlockManager : MonoBehaviour
 
         // Queue of food items
         foodQueue = new Queue<GameObject>();
+        foodList = new List<GameObject>();
 
         // Initialize random fish
         for (int i = 0; i < n; i++)
@@ -78,9 +80,15 @@ public class FlockManager : MonoBehaviour
     /// </summary>
     void Update()
     {
+        // Use 'esc' to quit
+        if (Input.GetKey("escape"))
+        {
+            Application.Quit();
+        }
+
         // Spawn food randomly on mouse click
         // Also prevent too much food from being spawned
-        if (Input.GetMouseButtonDown(0) && foodQueue.Count < 5)
+        if (Input.GetMouseButtonDown(0) && foodList.Count < 5)
         {
             // Spawn a food here
             int randX = Random.Range(-35, 35);

@@ -36,7 +36,7 @@ public class Flock : MonoBehaviour
     void Update()
     {
         // If there is no more food
-        if (manager.foodQueue.Count == 0) tracking = false;
+        if (manager.foodList.Count == 0) tracking = false;
         else tracking = true;
 
         // Clamp to max speed to avoid bugs lol
@@ -124,15 +124,29 @@ public class Flock : MonoBehaviour
 
     /// <summary>
     /// Tracking food overrides default behavior.
+    /// Also finds the shortest distance to a pellet of food and tracks the closest.
     /// </summary>
     void TrackFood()
     {
         if (tracking)
         {
-            Vector3 toFood = manager.foodQueue.Peek().transform.position;
-            Vector3 dir = toFood - gameObject.transform.position;
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
-            return;
+            // Iterate through the queue to get the distance to the shortest
+            Vector3 minDir = Vector3.zero;
+            float minDistance = float.MaxValue;
+
+            foreach(GameObject go in manager.foodList) {
+                Vector3 foodPos = go.transform.position;
+                Vector3 dir = foodPos - gameObject.transform.position;
+
+                // Found min distance, so update the tracked vector
+                float distToFood = Vector3.Distance(this.transform.position, foodPos);
+                if (distToFood < minDistance)
+                {
+                    minDir = dir;
+                    minDistance = distToFood;
+                }
+            }
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(minDir), manager.rotSpeed * Time.deltaTime);
         }
     }
 

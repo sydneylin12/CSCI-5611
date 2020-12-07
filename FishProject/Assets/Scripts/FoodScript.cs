@@ -15,6 +15,7 @@ public class FoodScript : MonoBehaviour
         // Start tracking food as soon as its spawned
         manager = GameObject.Find("FishManager").GetComponent<FlockManager>();
         manager.foodQueue.Enqueue(gameObject);
+        manager.foodList.Add(gameObject);
     }
 
     /// <summary>
@@ -24,7 +25,10 @@ public class FoodScript : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         // Food should disappear once something makes contact - also prevent empty queue exceptions
-        if(manager.foodQueue.Count > 0) manager.foodQueue.Dequeue();
+        if (manager.foodList.Count > 0)
+        {
+            manager.foodList.Remove(this.gameObject);
+        }
         Destroy(this.gameObject);
     }
 }
