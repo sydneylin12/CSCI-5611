@@ -2162,7 +2162,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1440331064
 Transform:
   m_ObjectHideFlags: 0
@@ -2399,10 +2399,9 @@ MonoBehaviour:
   foodPrefab: {fileID: 2074398801}
   n: 25
   fish: []
-  goldfish: []
   swimLimits: {x: 5, y: 5, z: 5}
-  minSpeed: 2
-  maxSpeed: 3
+  minSpeed: 3
+  maxSpeed: 4
   neighborhood_radius: 0
   avoidment_radius: 0
   rotSpeed: 2

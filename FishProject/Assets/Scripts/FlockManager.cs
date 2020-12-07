@@ -5,13 +5,12 @@ using UnityEngine;
 public class FlockManager : MonoBehaviour
 {
 
-    // Prefab for default fish
+    [Header("Prefabs")]
     public GameObject fishPrefab;
     public GameObject fish2Prefab;
     public GameObject goldfishPrefab;
-    private GameObject[] prefabs;
-
     public GameObject foodPrefab;
+    private GameObject[] fishPrefabs;
 
     // Number of fish
     public int n;
@@ -19,12 +18,10 @@ public class FlockManager : MonoBehaviour
     // Array of fish objects
     public GameObject[] fish;
 
-    // ADD ARRAYS HERE FOR MORE FISH
-    public GameObject[] goldfish;
-
-    // Speed limit
+    // Limit on size of tank
     public Vector3 swimLimits = new Vector3(34.0f, 26.0f, 16.0f);
 
+    // Holds food gameobjects in the queue
     public Queue<GameObject> foodQueue;
 
     [Header("Fish Settings")]
@@ -41,10 +38,11 @@ public class FlockManager : MonoBehaviour
     [Range(0.0f, 50.0f)]
     public float rotSpeed;
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// Called when the game starts (before update).
+    /// </summary>
     void Start()
     {
-
         // ARBITRARY
         swimLimits.x = 36.0f; // half of aqarium length
         swimLimits.z = 18.0f; // half of aqarium width
@@ -52,57 +50,58 @@ public class FlockManager : MonoBehaviour
 
         // Instantiate the array by HARD CODE!
         fish = new GameObject[n];
-
-        // Random amount of goldfish
-        goldfish = new GameObject[n - Random.Range(0, n / 2)];
-
-        prefabs = new GameObject[3];
-        prefabs[0] = fishPrefab;
-        prefabs[1] = fish2Prefab;
-        prefabs[2] = goldfishPrefab;
+        fishPrefabs = new GameObject[3];
+        fishPrefabs[0] = fishPrefab;
+        fishPrefabs[1] = fish2Prefab;
+        fishPrefabs[2] = goldfishPrefab;
 
         // Queue of food items
         foodQueue = new Queue<GameObject>();
 
+        // Initialize random fish
         for (int i = 0; i < n; i++)
         {
             // Generate random position and goal for a fish
             Vector3 randomPos = getNewGoal() + this.transform.position;
 
-            // Get random from fish prefabs
-            int rand = Random.Range(0, 3);
-            fish[i] = (GameObject)Instantiate(prefabs[rand], randomPos, Quaternion.identity);
-            
+            // Generate random fish and set components
+            fish[i] = (GameObject)Instantiate(fishPrefabs[Random.Range(0, 3)], randomPos, Quaternion.identity);
             fish[i].GetComponent<Flock>().manager = this;
             fish[i].GetComponent<Flock>().goal = getNewGoal();
+            fish[i].name = "FISH " + i;
         }
         activateFog();
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Called once per frame.
+    /// </summary>
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        // Spawn food randomly on mouse click
+        // Also prevent too much food from being spawned
+        if (Input.GetMouseButtonDown(0) && foodQueue.Count < 5)
         {
             // Spawn a food here
-            Debug.Log("Spawning food");
             int randX = Random.Range(-35, 35);
             int randZ = Random.Range(0, 10);
             Instantiate(foodPrefab, new Vector3(randX, 27, randZ), Quaternion.identity);
         }
-        
 
+        // Update goal position every once in awhile
         for (int i = 0; i < n; i++)
         {
-            // update goal position every once in awhile
-            if (Random.Range(0, 10000) < 50)
+            if (Random.Range(0, 100) < 5)
             {
                 // Generate random position for a fish
-                fish[i].GetComponent<Flock>().goal = this.transform.position + getNewGoal();
+                fish[i].GetComponent<Flock>().goal = getNewGoal();
             }
         }
     }
 
+    /// <summary>
+    /// Turn on fog effects.
+    /// </summary>
     void activateFog()
     {
         RenderSettings.fogColor = Camera.main.backgroundColor;
@@ -110,6 +109,10 @@ public class FlockManager : MonoBehaviour
         RenderSettings.fog = true;
     }
 
+    /// <summary>
+    /// Returns a new position in the tank as a Vector3.
+    /// </summary>
+    /// <returns>A new goal Vector3.</returns>
     public Vector3 getNewGoal()
     {
         // generates a new goal position for the fish
@@ -126,10 +129,13 @@ public class FlockManager : MonoBehaviour
             z = Random.Range(-swimLimits.z, swimLimits.z);
             newPos = new Vector3(x, y, z);
         }
-        
         return newPos;
     }
 
+    /// <summary>
+    /// Returns a random speed in the range (min, max).
+    /// </summary>
+    /// <returns></returns>
     public float getRandomSpeed()
     {
         return Random.Range(minSpeed, maxSpeed);

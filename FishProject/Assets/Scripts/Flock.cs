@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Flock : MonoBehaviour
 {
@@ -11,25 +9,30 @@ public class Flock : MonoBehaviour
     public float speed = 0.0f;
     public bool turning = false; // TODO
 
-    // Turn mechanics
+    // Fish goal position in the tank
     public Vector3 newGoalPos;
 
-    // goal position of fish
+    // Goal position of fish
     public Vector3 goal;
 
-    // current number of collisions
+    // Number of collisions
     int numCol = 0;
 
-    bool tracking = false;
+    // Is the fish tracking food?
+    bool tracking;
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// Called before the first update.
+    /// </summary>
     void Start()
     {
         speed = manager.getRandomSpeed();
         goal = manager.getNewGoal();
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Called once pre frame.
+    /// </summary>
     void Update()
     {
         // If there is no more food
@@ -39,36 +42,49 @@ public class Flock : MonoBehaviour
         // Clamp to max speed to avoid bugs lol
         if (speed > manager.maxSpeed) speed = manager.maxSpeed;
 
-        if (turning)
+        // ALWAYS check goal to prevent spinning
+        /*
+         * I think the problem was that the fish was circling around the goal position but couldn't reach it
+         * So the answer was to check every time to see if the goal had been reached?
+         * Also changed the checking radius to be more forgiving
+         */
+        checkGoal();
+
+        // Tracking behavior takes priority over everything
+        if (tracking)
+        {
+            TrackFood();
+        }
+        // The spinning bug is happening when turning = true
+        else if (turning)
         {
             Vector3 dir = newGoalPos - transform.position;
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
-            this.speed = manager.getRandomSpeed();
         }
         else
         {
             // Do not apply forces every time - kind of fixes the spinning fish bug
             // Track 100% of the time
-            if (Random.Range(0, 10) < 1 || tracking)
+            if (Random.Range(0, 10) < 1)
             {
                 ApplyForces();
-                checkGoal();
             }
         }
-
-        // Translate on the z-axis (swim forward) NO MATTER WHAT
+        // Move fish after all conditions
         transform.Translate(0, 0, Time.deltaTime * speed);
     }
 
-    // Collide with walls
+    /// <summary>
+    /// Handle fish collisions with other colliders.
+    /// </summary>
+    /// <param name="other">Any other collider.</param>
     void OnTriggerEnter(Collider other)
     {
-        // PREVENT SPINNING FISH
         Collider col = this.gameObject.GetComponent<Collider>();
         if (col == other) return;
 
         numCol++;
-        if (!turning)
+        if (!turning) // Prevent robotic turning
         {
             newGoalPos = manager.getNewGoal();
             goal = newGoalPos;
@@ -77,7 +93,10 @@ public class Flock : MonoBehaviour
         
     }
 
-    // Disable turning when collision is done
+    /// <summary>
+    /// Disable turning when all collisions are gone.
+    /// </summary>
+    /// <param name="other">The other collider.</param>
     void OnTriggerExit(Collider other)
     {
         numCol--;
@@ -87,12 +106,33 @@ public class Flock : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Check if the goal has been reached.
+    /// </summary>
     void checkGoal()
     {
         // check if the fish is at the goal. If so, generate a new goal
-        if (Vector3.Distance(goal, transform.position) < 1)
+        if (Vector3.Distance(goal, this.gameObject.transform.position) < 5)
         {
             goal = manager.getNewGoal();
+        }
+        if(Vector3.Distance(newGoalPos, this.gameObject.transform.position) < 5)
+        {
+            newGoalPos = manager.getNewGoal();
+        }
+    }
+
+    /// <summary>
+    /// Tracking food overrides default behavior.
+    /// </summary>
+    void TrackFood()
+    {
+        if (tracking)
+        {
+            Vector3 toFood = manager.foodQueue.Peek().transform.position;
+            Vector3 dir = toFood - gameObject.transform.position;
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
+            return;
         }
     }
 
@@ -101,16 +141,6 @@ public class Flock : MonoBehaviour
     /// </summary>
     void ApplyForces()
     {
-        // Override and track the food instead
-        if(tracking)
-        {
-            Debug.Log("TRACKING!");
-            Vector3 toFood = manager.foodQueue.Peek().transform.position;
-            Vector3 dir = toFood - gameObject.transform.position;
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), manager.rotSpeed * Time.deltaTime);
-            return;
-        }
-
         GameObject[] fish = manager.fish;
         Vector3 center = Vector3.zero;
         Vector3 avoid = Vector3.zero;
@@ -145,6 +175,7 @@ public class Flock : MonoBehaviour
             }
         }
 
+        //float distanceToCenter = Vector3.Distance(this.gameObject.transform.position, center);
         if (size > 0) // We have a legit flock (avoid div. by zero)
         {
             // Average the stuff out
