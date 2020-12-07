@@ -70,7 +70,7 @@ public class FlockManager : MonoBehaviour
             fish[i].GetComponent<Flock>().goal = getNewGoal();
             fish[i].name = "FISH " + i;
         }
-        activateFog();
+        //activateFog();
     }
 
     /// <summary>
