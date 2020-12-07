@@ -26,6 +26,7 @@ public class Flock : MonoBehaviour
     void Start()
     {
         speed = manager.getRandomSpeed();
+        goal = manager.getNewGoal();
     }
 
     // Update is called once per frame
@@ -36,7 +37,7 @@ public class Flock : MonoBehaviour
         else tracking = true;
 
         // Clamp to max speed to avoid bugs lol
-        if (speed > 2.0) speed = manager.maxSpeed;
+        if (speed > manager.maxSpeed) speed = manager.maxSpeed;
 
         if (turning)
         {
@@ -48,12 +49,11 @@ public class Flock : MonoBehaviour
         {
             // Do not apply forces every time - kind of fixes the spinning fish bug
             // Track 100% of the time
-            if (Random.Range(0, 20) < 1 || tracking)
+            if (Random.Range(0, 10) < 1 || tracking)
             {
                 ApplyForces();
                 checkGoal();
             }
-            
         }
 
         // Translate on the z-axis (swim forward) NO MATTER WHAT
@@ -63,6 +63,10 @@ public class Flock : MonoBehaviour
     // Collide with walls
     void OnTriggerEnter(Collider other)
     {
+        // PREVENT SPINNING FISH
+        Collider col = this.gameObject.GetComponent<Collider>();
+        if (col == other) return;
+
         numCol++;
         if (!turning)
         {
@@ -76,7 +80,6 @@ public class Flock : MonoBehaviour
     // Disable turning when collision is done
     void OnTriggerExit(Collider other)
     {
-        //Debug.Log("left object");
         numCol--;
         if (numCol == 0)
         {
@@ -98,7 +101,6 @@ public class Flock : MonoBehaviour
     /// </summary>
     void ApplyForces()
     {
-
         // Override and track the food instead
         if(tracking)
         {
