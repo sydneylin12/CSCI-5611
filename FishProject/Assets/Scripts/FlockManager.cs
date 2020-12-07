@@ -88,7 +88,7 @@ public class FlockManager : MonoBehaviour
 
         // Spawn food randomly on mouse click
         // Also prevent too much food from being spawned
-        if (Input.GetMouseButtonDown(0) && foodList.Count < 5)
+        if (Input.GetMouseButtonDown(0) && foodList.Count < 10)
         {
             // Spawn a food here
             int randX = Random.Range(-35, 35);
