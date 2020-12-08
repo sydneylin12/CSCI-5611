@@ -72,7 +72,7 @@ Material:
     - _DepthBlend: 170
     - _DepthFade: 20
     - _DetailNormalMapScale: 1
-    - _Diffraction: 0
+    - _Diffraction: 0.062
     - _Distance: 500
     - _DistanceBlend: 100
     - _DistortionSpeed: 1
@@ -81,17 +81,17 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _Height: 15
+    - _Height: 10
     - _LOD: 100
     - _MainTile: 4.5
     - _Metallic: 0
     - _Mode: 0
-    - _Multiply: 1
+    - _Multiply: 1.201
     - _NoiseTile: 0.3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothHeight: 8
-    - _Smoothness: 0.204
+    - _Smoothness: 0.01
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
